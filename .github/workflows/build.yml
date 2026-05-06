@@ -51,7 +51,7 @@ jobs:
         flet build apk --project "GSB Panchangam" --org "com.girish.panchangam"
 
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: gsb-panchangam-apk
         path: build/apk/app-release.apk
