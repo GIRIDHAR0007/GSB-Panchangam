@@ -35,8 +35,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Check files
+      run: |
+        ls -la
+        ls -la assets/
+
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
+
+    - name: Accept Android licenses
+      run: yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 
     - name: Build APK
       run: |
