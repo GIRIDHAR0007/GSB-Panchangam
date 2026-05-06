@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GSB Panchang</title>
+    <style>
+        body {
+            background-color: #fbf8f3;
+            color: #1f1b17;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 24px;
+            max-width: 600px;
+            margin: auto;
+            text-align: center;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.06);
+            padding: 24px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .button-row {
+            display: grid;
+            grid-template-columns: minmax(120px, max-content) 1fr minmax(120px, max-content);
+            gap: 12px;
+            align-items: center;
+            margin-top: 16px;
+            justify-items: center;
+        }
+        button, input[type="date"] {
+            border-radius: 12px;
+            border: 1px solid #d7d1c7;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #1f2937;
+            background: #ffffff;
+        }
+        button {
+            background-color: #1f2937;
+            color: #f8fafc;
+            border-color: transparent;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background-color: #111827;
+            transform: translateY(-1px);
+        }
+        .result-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            row-gap: 12px;
+            text-align: left !important;
+        }
+        .result-list li {
+            padding: 0;
+            border: none;
+        }
+        .result-list li strong {
+            display: block;
+            font-size: 0.95rem;
+            letter-spacing: 0.01em;
+            margin-bottom: 2px;
+        }
+        .result-list li small {
+            display: block;
+            color: #5b5b5b;
+            margin-top: 2px;
+        }
+        .description {
+            max-width: 500px;
+            line-height: 1.6;
+            color: #4b5563;
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>GSB Panchang</h1>
+    <p class="description">Select any date, then use the buttons to move to the previous or next day.</p>
+
+    <form id="panchangamForm" method="POST">
+        <div class="button-row">
+            <button type="button" id="prevBtn">← Previous Day</button>
+            <input type="date" id="date" name="date" value="{{ selected_date or '' }}" required>
+            <button type="button" id="nextBtn">Next Day →</button>
+        </div>
+    </form>
+
+    <div class="card">
+        {% if data %}
+            <h2>Panchangam for {{ data.date }}</h2>
+                <ul class="result-list">
+                <li><strong>Day:</strong> {{ data.day }}</li>
+                <li><strong>Sunrise:</strong> {{ data.sunrise }}</li>
+                <li><strong>Sunset:</strong> {{ data.sunset }}</li>
+                <li><strong>Moonrise:</strong> {{ data.moonrise }}</li>
+                <li><strong>Moonset:</strong> {{ data.moonset }}</li>
+                <li><strong>Rahu Kaal:</strong> {{ data.rahu_kaal }}</li>
+                <li><strong>Tithi:</strong> {{ data.tithi }}<br>{{ data.tithi_ml }}</li>
+                <li><strong>Nakshatra:</strong> {{ data.nakshatra }}<br>{{ data.nakshatra_ml }}</li>
+                <li><strong>Masu/month:</strong> {{ data.masu }}<br>{{ data.masu_ml }}</li>
+                <li><strong>Ayana:</strong> {{ data.ayana }}<br>{{ data.ayana_ml }}</li>
+                <li><strong>Ritu:</strong> {{ data.ritu }}<br>{{ data.ritu_ml }}</li>
+                <li><strong>Lunar Month:</strong> {{ data.lunar_month }}<br>{{ data.lunar_month_ml }}</li>
+                <li><strong>Samvatsara:</strong> {{ data.samvatsara }}<br>{{ data.samvatsara_ml }}</li>
+            </ul>
+        {% else %}
+            <h2>No data yet</h2>
+            <p>Please select a date and click <strong>Update Panchangam</strong>.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        const dateInput = document.getElementById('date');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const form = document.getElementById('panchangamForm');
+
+        function changeDay(delta) {
+            const current = new Date(dateInput.value);
+            current.setDate(current.getDate() + delta);
+            dateInput.value = current.toISOString().slice(0, 10);
+            form.submit();
+        }
+
+        prevBtn.addEventListener('click', () => changeDay(-1));
+        nextBtn.addEventListener('click', () => changeDay(1));
+    </script>
+</body>
+</html>
