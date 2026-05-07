@@ -1,0 +1,10 @@
+{
+  "buildCommand": "pip install -r requirements.txt",
+  "outputDirectory": ".",
+  "framework": "other",
+  "functions": {
+    "app.py": {
+      "runtime": "python3.9"
+    }
+  }
+}
