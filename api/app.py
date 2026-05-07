@@ -1,9 +1,14 @@
-import flet as ft
+import sys
+import os
 from datetime import datetime, date
-import panchangam
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 
-app = Flask(__name__, template_folder='../templates')
+# Add parent directory to path to import panchangam
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import panchangam
+
+app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates'))
 
 DEFAULT_LATITUDE = 8.5241
 DEFAULT_LONGITUDE = 76.9366
@@ -30,8 +35,6 @@ def index():
         )
     except Exception as e:
         print(f"Error fetching panchangam: {e}")
+        data = None
     
     return render_template('index.html', selected_date=selected_date.strftime('%Y-%m-%d'), data=data)
-
-if __name__ == '__main__':
-    app.run(debug=False, port=8000)
