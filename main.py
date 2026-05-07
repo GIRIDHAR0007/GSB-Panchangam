@@ -1,99 +1,80 @@
-import flet as ft
-import panchangam
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
+from kivy.uix.calendar import Calendar
 from datetime import date, timedelta
+import panchangam
 
-def main(page: ft.Page):
-    page.title = "GSB Panchang"
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.theme_mode = ft.ThemeMode.LIGHT
-    page.padding = 30
-
-    title = ft.Text("GSB Panchang", size=32, weight="bold", color="orange")
-    selected_date_text = ft.Text("", size=18, weight="bold")
-    sunrise_text = ft.Text("", size=16)
-    sunset_text = ft.Text("", size=16)
-    moonrise_text = ft.Text("", size=16)
-    moonset_text = ft.Text("", size=16)
-    rahu_text = ft.Text("", size=16)
-    tithi_text = ft.Text("", size=16)
-    nakshatra_text = ft.Text("", size=16)
-    ritu_text = ft.Text("", size=16)
-    masu_text = ft.Text("", size=16)
-    ayana_text = ft.Text("", size=16)
-    lunar_month_text = ft.Text("", size=16)
-    samvatsara_text = ft.Text("", size=16)
-
-    def update_panchangam(selected_date):
-        if not selected_date:
-            return
+class PanchangamApp(App):
+    def build(self):
+        self.layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        self.title_label = Label(text="GSB Panchang", font_size=32, size_hint_y=None, height=50)
+        self.layout.add_widget(self.title_label)
+        
+        self.date_input = TextInput(text=date.today().isoformat(), multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(self.date_input)
+        
+        self.select_date_button = Button(text="Select Date", size_hint_y=None, height=40)
+        self.select_date_button.bind(on_press=self.show_date_picker)
+        self.layout.add_widget(self.select_date_button)
+        
+        self.prev_button = Button(text="Previous Day", size_hint_y=None, height=40)
+        self.prev_button.bind(on_press=lambda x: self.change_day(-1))
+        self.next_button = Button(text="Next Day", size_hint_y=None, height=40)
+        self.next_button.bind(on_press=lambda x: self.change_day(1))
+        
+        button_layout = BoxLayout(size_hint_y=None, height=40)
+        button_layout.add_widget(self.prev_button)
+        button_layout.add_widget(self.next_button)
+        self.layout.add_widget(button_layout)
+        
+        self.info_label = Label(text="", size_hint_y=None, height=400, halign='left', valign='top')
+        self.info_label.bind(size=self.info_label.setter('text_size'))
+        self.layout.add_widget(self.info_label)
+        
+        self.update_panchangam(date.today())
+        
+        return self.layout
+    
+    def show_date_picker(self, instance):
+        self.cal = Calendar()
+        self.cal.bind(on_touch_down=self.select_date)
+        self.popup = Popup(title="Select Date", content=self.cal, size_hint=(0.8, 0.8))
+        self.popup.open()
+    
+    def select_date(self, instance, touch):
+        if self.cal.collide_point(*touch.pos):
+            selected_date = date.fromordinal(self.cal.active_date)
+            self.date_input.text = selected_date.isoformat()
+            self.update_panchangam(selected_date)
+            self.popup.dismiss()
+    
+    def change_day(self, delta):
+        current = date.fromisoformat(self.date_input.text)
+        new_date = current + timedelta(days=delta)
+        self.date_input.text = new_date.isoformat()
+        self.update_panchangam(new_date)
+    
+    def update_panchangam(self, selected_date):
         values = panchangam.get_panchangam_for_date(selected_date)
-        selected_date_text.value = f"Date: {values['date']} ({values['day']})"
-        sunrise_text.value = f"Sunrise: {values['sunrise']}"
-        sunset_text.value = f"Sunset: {values['sunset']}"
-        moonrise_text.value = f"Moonrise: {values['moonrise']}"
-        moonset_text.value = f"Moonset: {values['moonset']}"
-        rahu_text.value = f"Rahu Kaal: {values['rahu_kaal']}"
-        tithi_text.value = f"Tithi: {values['tithi']}\n{values['tithi_ml']}"
-        nakshatra_text.value = f"Nakshatra: {values['nakshatra']}\n{values['nakshatra_ml']}"
-        ritu_text.value = f"Ritu: {values['ritu']}\n{values['ritu_ml']}"
-        masu_text.value = f"Masu/month: {values['masu']}\n{values['masu_ml']}"
-        ayana_text.value = f"Ayana: {values['ayana']}\n{values['ayana_ml']}"
-        lunar_month_text.value = f"Lunar Month: {values['lunar_month']}\n{values['lunar_month_ml']}"
-        samvatsara_text.value = f"Samvatsara: {values['samvatsara']}\n{values['samvatsara_ml']}"
-        page.update()
+        info = f"Date: {values['date']} ({values['day']})\n"
+        info += f"Sunrise: {values['sunrise']}\n"
+        info += f"Sunset: {values['sunset']}\n"
+        info += f"Moonrise: {values['moonrise']}\n"
+        info += f"Moonset: {values['moonset']}\n"
+        info += f"Rahu Kaal: {values['rahu_kaal']}\n"
+        info += f"Tithi: {values['tithi']}\n{values['tithi_ml']}\n"
+        info += f"Nakshatra: {values['nakshatra']}\n{values['nakshatra_ml']}\n"
+        info += f"Ritu: {values['ritu']}\n{values['ritu_ml']}\n"
+        info += f"Masu/month: {values['masu']}\n{values['masu_ml']}\n"
+        info += f"Ayana: {values['ayana']}\n{values['ayana_ml']}\n"
+        info += f"Lunar Month: {values['lunar_month']}\n{values['lunar_month_ml']}\n"
+        info += f"Samvatsara: {values['samvatsara']}\n{values['samvatsara_ml']}\n"
+        self.info_label.text = info
 
-    def on_date_change(e):
-        update_panchangam(date_picker.value)
-
-    def change_day(delta):
-        current = date_picker.value
-        if current:
-            next_date = current + timedelta(days=delta)
-            date_picker.value = next_date
-            update_panchangam(next_date)
-
-    date_picker = ft.DatePicker(
-        value=date.today(),
-        first_date=date(2000, 1, 1),
-        last_date=date(2030, 12, 31),
-        on_change=on_date_change,
-    )
-
-    prev_button = ft.ElevatedButton("Previous Day", on_click=lambda _: change_day(-1))
-    next_button = ft.ElevatedButton("Next Day", on_click=lambda _: change_day(1))
-
-    panchangam_card = ft.Card(
-        content=ft.Container(
-            content=ft.Column([
-                selected_date_text,
-                sunrise_text,
-                sunset_text,
-                moonrise_text,
-                moonset_text,
-                rahu_text,
-                tithi_text,
-                nakshatra_text,
-                ritu_text,
-                masu_text,
-                ayana_text,
-                lunar_month_text,
-                samvatsara_text,
-            ]),
-            padding=20,
-            width=380,
-        )
-    )
-
-    page.add(
-        title,
-        ft.Divider(height=20, color="transparent"),
-        ft.Row([prev_button, next_button], alignment=ft.MainAxisAlignment.CENTER),
-        ft.Divider(height=20, color="transparent"),
-        date_picker,
-        ft.Divider(height=20, color="transparent"),
-        panchangam_card,
-    )
-
-    update_panchangam(date_picker.value)
-
-ft.app(target=main)
+if __name__ == '__main__':
+    PanchangamApp().run()
