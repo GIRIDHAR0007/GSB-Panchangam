@@ -1,4 +1,4 @@
 Flask==3.0.0
-pyephem==9.99
+ephem
 swisseph==0.0.0.dev1
 flet==0.84.0
