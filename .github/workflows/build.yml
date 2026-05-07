@@ -49,7 +49,7 @@ jobs:
 
       - name: Build APK with Flet
         run: |
-          flet build apk main.py --project "GSB Panchangam" --org "com.girish.panchangam" --yes
+          flet build apk . --module-name main --project "GSB Panchangam" --org "com.girish.panchangam" --yes
         shell: bash
 
       - name: Upload APK
