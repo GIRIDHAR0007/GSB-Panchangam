@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-import ephem
+import pyephem as ephem
 import math
 import swisseph as swe
 
